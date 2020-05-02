@@ -13,6 +13,7 @@ const char PLANECHAR = '8';
 const char ENEMYCHAR = '0';
 #define ENEMYNUM 5
 using namespace std;
+void hello();
 class area
 {
 public:
@@ -31,6 +32,7 @@ public:
 	void enemymove(int enemy[][2]);
 	int controlenemydead(int bullet[W],int enemy[][2]);
 	bool controlplanedead(int x, int y, int enemy[][2]);
+	void gameover();
 	void printarea();
 	area();
 };
@@ -237,6 +239,15 @@ void area::enemymove(int enemy[][2])
 		enemy[i][1]++;
 	}
 }
+void area::gameover()
+{
+	cout << "游\t戏\t结\t束" << endl;
+	cout << "您\t的\t分\t数\t是" << endl;
+	cout << score<<endl;
+	cout << "欢\t迎\t下\t次\t体\t验！"<<endl;
+	cout << "任\t意\t键\t退\t出" << endl;
+	exit(0);
+}
 void area::rungame(int &x,int &y,int enemy[][2],int &score)
 {
 	firstbuild();
@@ -255,6 +266,7 @@ void area::rungame(int &x,int &y,int enemy[][2],int &score)
 	case 80: moveplane(x,y,3); break;
 	case 75: moveplane(x,y,0); break;
 	case 77: moveplane(x,y,1); break;
+	case 'q':gameover(); break;
 	default:break;
 	}
 
@@ -265,7 +277,7 @@ void area::rungame(int &x,int &y,int enemy[][2],int &score)
 	printarea();
 	if (dead == true)
 	{
-		exit(0);
+		gameover();
 	}
 	else
 	{
@@ -344,10 +356,27 @@ area::area()
 }
 int main()
 {
-	
+	hello();
 	area t;
+	
+	
 }
-
+void hello()
+{
+	cout << "欢迎体验命令行版本飞机大战！" << endl;
+	cout << "按空格键开始游戏" << endl;
+	cout << "说明：方向键控制飞机移动，自动开火，中途可按q键退出" << endl;
+	int start1 = clock();
+	while (clock() - start1 <= 1000);
+	for (int i = 3; i >= 0; i--)
+	{
+		int start = clock();
+		while (clock() - start <= 1000);
+		system("cls");
+		if (i > 0)
+			cout << "\n\n\t\t倒计时：" << i << endl;
+	}
+}
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
 // 调试程序: F5 或调试 >“开始调试”菜单
 
