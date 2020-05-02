@@ -6,6 +6,7 @@
 #include<windows.h>
 #include<time.h>
 #include<conio.h>
+#include<ctime>
 #define H 22
 #define W 22
 const char PLANECHAR = '8';
@@ -27,6 +28,7 @@ public:
 	void setbullet(int x, int y);
 	void rungame(int &x,int &y,int enemy[][2],int &score);
 	void newenemy(int enemy[][2]);
+	void enemymove(int enemy[][2]);
 	int controlenemydead(int bullet[W],int enemy[][2]);
 	bool controlplanedead(int x, int y, int enemy[][2]);
 	void printarea();
@@ -61,12 +63,12 @@ void area::setenemy(int x, int y,bool appear)
 {
 	if (appear == true)
 	{
-		uarea[x][y] = PLANECHAR;
+		uarea[x][y] = ENEMYCHAR;
 		if (x != 1 && x != H - 2 && y != 1 && y != W - 2)
 		{
-			uarea[x - 1][y] = PLANECHAR;
-			uarea[x + 1][y] = PLANECHAR;
-			uarea[x][y + 1] = PLANECHAR;
+			uarea[x - 1][y] =ENEMYCHAR;
+			uarea[x + 1][y] = ENEMYCHAR;
+			uarea[x][y + 1] = ENEMYCHAR;
 		}
 	}
 	if (appear == false)
@@ -86,12 +88,12 @@ void area::setplane(int x, int y,bool appear)
 {
 	if (appear == true) 
 	{
-		uarea[x][y] = ENEMYCHAR;
+		uarea[x][y] = PLANECHAR;
 		if (x != 1 && x != H - 2 && y != 1 && y != W - 2)
 		{
-			uarea[x - 1][y] = ENEMYCHAR;
-			uarea[x + 1][y] = ENEMYCHAR;
-			uarea[x][y - 1] = ENEMYCHAR;
+			uarea[x - 1][y] = PLANECHAR;
+			uarea[x + 1][y] = PLANECHAR;
+			uarea[x][y - 1] = PLANECHAR;
 		}
 	}
 	if (appear == false)
@@ -136,6 +138,16 @@ void area::moveplane(int &x, int &y, int forward)
 void area::setbullet(int x, int y)
 {
 	
+	for (int i = 0; i < W - 4; i++)
+	{
+		int t = bullet[i];
+		if (t != -1)
+		{
+			uarea[t][i + 1] = ' ';
+
+		}
+
+	}
 	for (int i = 0; i <y-2; i++)
 	{
 		bullet[i] = bullet[i + 1];
@@ -157,7 +169,7 @@ void area::newenemy(int enemy[][2])
 	int temp1 = 0;
 	for (int i = 0; i < ENEMYNUM; i++)
 	{
-		if (enemy[i][1] != H + 1)
+		if (enemy[i][1] == -1)
 		{
 			do
 			{
@@ -177,11 +189,12 @@ int area::controlenemydead(int bullet[W], int enemy[][2])
 	{
 		for (int j = 0; j < ENEMYNUM; j++)
 		{
-			if (bullet[i] == enemy[j][0] && enemy[j][1] == i)
+			if ((bullet[i] == enemy[j][0] && enemy[j][1] == i)||(bullet[i] == enemy[j][0] && enemy[j][1] == i-1)|| (bullet[i]+1 == enemy[j][0] && enemy[j][1] == i)||(bullet[i]-1 == enemy[j][0] && enemy[j][1] == i))
 			{
 				bullet[i] = -1;
 				std::cout << "\a";
-				enemy[j][1] = H + 1;
+				enemy[j][1] = -1;
+				enemy[j][0] = -1;
 				defeat++;
 				setenemy(enemy[j][0], enemy[j][1], false);
 			}
@@ -209,6 +222,21 @@ bool area:: controlplanedead(int x, int y, int enemy[][2])
 	}
 	return false;
 }
+void area::enemymove(int enemy[][2])
+{
+	for (int j = 0; j < ENEMYNUM; j++)
+	{
+		if (enemy[j][1] != -1)
+		{
+			setenemy(enemy[j][0], enemy[j][1], false);
+		}
+
+	}
+	for (int i = 0; i < ENEMYNUM; i++)
+	{
+		enemy[i][1]++;
+	}
+}
 void area::rungame(int &x,int &y,int enemy[][2],int &score)
 {
 	firstbuild();
@@ -216,7 +244,7 @@ void area::rungame(int &x,int &y,int enemy[][2],int &score)
 	int direction = 0;
 	newenemy(enemy);
 	int start = clock();
-	while ((timeover = (clock() - start <= gamespeed)) && !_kbhit());//kbhit 没有输入是0，有是非零
+	while ((clock() - start <= gamespeed) && !_kbhit());//kbhit 没有输入是0，有是非零
 	{
 		_getch();
 		direction = _getch();
@@ -231,6 +259,7 @@ void area::rungame(int &x,int &y,int enemy[][2],int &score)
 	}
 
 	setbullet(x, y);
+	enemymove(enemy);
 	int thisscore=controlenemydead(bullet, enemy);
 	bool dead=controlplanedead(x, y, enemy);
 	printarea();
@@ -254,6 +283,10 @@ void area::printarea()
 		{
 			std::cout << uarea[j][i];
 		}
+		if (i == 5)
+		{
+			cout << "当前分数：" << score;
+		}
 		std::cout << std::endl;
 	}
 }
@@ -273,8 +306,9 @@ area::area()
 		enemy[i][0] = -1;
 		enemy[i][1] = -1;
 	}
+	gamespeed = 500;
 	while (true)
-	{
+	 {
 
 		rungame(x1, y1, enemy, score);
 
@@ -282,7 +316,7 @@ area::area()
 	//newenemy(enemy);
 	//setbullet(15, 18);
 	//controlenemydead(bullet, enemy);
-	/*for (int i = 0; i < ENEMYNUM; i++)
+    /*for (int i = 0; i < ENEMYNUM; i++)
 	{
 		cout << enemy[i][0]<<endl;
 		cout << enemy[i][1]<<endl;
@@ -296,8 +330,8 @@ area::area()
 
 	}*/
 	//setenemy(5, 5, true);
-	printarea();
-	for (int i = 0; i < W - 4; i++)
+	//printarea();
+	/*for (int i = 0; i < W - 4; i++)
 	{
 		cout << "test bullet :"<<bullet[i] << endl;
 	}
@@ -306,7 +340,7 @@ area::area()
 		cout <<"test enemy X:"<< enemy[i][0] << endl;
 		cout <<"test enemy Y:"<< enemy[i][1] << endl;
 	}
-	
+	*/
 }
 int main()
 {
