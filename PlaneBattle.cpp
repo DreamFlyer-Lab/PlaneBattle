@@ -8,16 +8,17 @@
 #include<conio.h>
 #define H 22
 #define W 22
-#define PLANECHAR 8
-#define ENEMYCHAR 0
+const char PLANECHAR = '8';
+const char ENEMYCHAR = '0';
 #define ENEMYNUM 5
+using namespace std;
 class area
 {
 public:
-	char uarea[H][W];
-	int bullet[W] = {H+1};
+	char uarea[H][W] = {' '};
+	int bullet[W-4] = {-1};
 	int score = 0;
-	int enemy[ENEMYNUM][2] = { H + 1 };//0是H坐标，Y是W坐标
+	int enemy[ENEMYNUM][2] = {-1 };//0是H坐标，Y是W坐标
 	int gamespeed = 500;
 	void firstbuild();
 	void setplane(int x, int y,bool appear);
@@ -119,7 +120,7 @@ void area::moveplane(int &x, int &y, int forward)
 		setplane(x + 1, y, true);
 		x = x + 1;
 	}
-	if (forward == 2&y-1!=2)//上
+	if (forward == 2&&y-1!=2)//上
 	{
 		setplane(x, y, false);
 		setplane(x, y - 1, true);
@@ -134,19 +135,21 @@ void area::moveplane(int &x, int &y, int forward)
 }
 void area::setbullet(int x, int y)
 {
-	for (int i = y - 1; i < W; i++)
-	{
-		bullet[i] = H + 1;
-	}
-	for (int i = 0; i <=y-2; i++)
+	
+	for (int i = 0; i <y-2; i++)
 	{
 		bullet[i] = bullet[i + 1];
 	}
-	bullet[y - 2] = x;
-	for (int i = 0; i < H; i++)
+	bullet[y - 3] = x;
+	for (int i = 0; i < W-4; i++)
 	{
 		int t = bullet[i];
-		uarea[t][i] = '\^';
+		if (t != -1)
+		{
+			uarea[t][i + 1] = '\^';
+			
+		}
+		
 	}
 }
 void area::newenemy(int enemy[][2])
@@ -176,7 +179,7 @@ int area::controlenemydead(int bullet[W], int enemy[][2])
 		{
 			if (bullet[i] == enemy[j][0] && enemy[j][1] == i)
 			{
-				bullet[i] = H + 1;
+				bullet[i] = -1;
 				std::cout << "\a";
 				enemy[j][1] = H + 1;
 				defeat++;
@@ -187,7 +190,7 @@ int area::controlenemydead(int bullet[W], int enemy[][2])
 	}
 	for (int j = 0; j < ENEMYNUM; j++)
 	{
-		if (enemy[j][1] != H + 1)
+		if (enemy[j][1] != -1)
 		{
 			setenemy(enemy[j][0], enemy[j][1], true);
 		}
@@ -226,6 +229,7 @@ void area::rungame(int &x,int &y,int enemy[][2],int &score)
 	case 77: moveplane(x,y,1); break;
 	default:break;
 	}
+
 	setbullet(x, y);
 	int thisscore=controlenemydead(bullet, enemy);
 	bool dead=controlplanedead(x, y, enemy);
@@ -257,12 +261,52 @@ area::area()
 {
 	int x1 = H / 2;
 	int y1 = W - 2;
+	
+	//cout << "test";
+	//firstbuild();
+	for (int i = 0; i < W - 4; i++)
+	{
+		bullet[i] = -1;
+	}
+	for (int i = 0; i < ENEMYNUM; i++)
+	{
+		enemy[i][0] = -1;
+		enemy[i][1] = -1;
+	}
 	while (true)
 	{
-		
+
 		rungame(x1, y1, enemy, score);
-		
+
 	}
+	//newenemy(enemy);
+	//setbullet(15, 18);
+	//controlenemydead(bullet, enemy);
+	/*for (int i = 0; i < ENEMYNUM; i++)
+	{
+		cout << enemy[i][0]<<endl;
+		cout << enemy[i][1]<<endl;
+	}*/
+	/*for (int j = 0; j < ENEMYNUM; j++)
+	{
+		if (enemy[j][1] != H + 1)
+		{
+			setenemy(enemy[j][0], enemy[j][1], true);
+		}
+
+	}*/
+	//setenemy(5, 5, true);
+	printarea();
+	for (int i = 0; i < W - 4; i++)
+	{
+		cout << "test bullet :"<<bullet[i] << endl;
+	}
+	for (int i = 0; i < ENEMYNUM; i++)
+	{
+		cout <<"test enemy X:"<< enemy[i][0] << endl;
+		cout <<"test enemy Y:"<< enemy[i][1] << endl;
+	}
+	
 }
 int main()
 {
