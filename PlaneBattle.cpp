@@ -6,7 +6,7 @@
 #include<windows.h>
 #include<time.h>
 #include<conio.h>
-#include<ctime>
+#include<fstream>
 #define H 22
 #define W 22
 const char PLANECHAR = '8';
@@ -17,23 +17,23 @@ void hello();
 class area
 {
 public:
-	char uarea[H][W] = {' '};
-	int bullet[W-4] = {-1};
-	int score = 0;
-	int enemy[ENEMYNUM][2] = {-1 };//0是H坐标，Y是W坐标
-	int gamespeed = 500;
-	void firstbuild();
-	void setplane(int x, int y,bool appear);
-	void setenemy(int x, int y,bool appear);
-	void moveplane(int &x, int &y, int forward);
-	void setbullet(int x, int y);
-	void rungame(int &x,int &y,int enemy[][2],int &score);
-	void newenemy(int enemy[][2]);
-	void enemymove(int enemy[][2]);
-	int controlenemydead(int bullet[W],int enemy[][2]);
-	bool controlplanedead(int x, int y, int enemy[][2]);
-	void gameover();
-	void printarea();
+	char uarea[H][W] = {' '};//uarea:构成整个游戏界面的二维字符数组，H为横坐标，W为纵坐标
+	int bullet[W-4] = {-1};//bullet:存储子弹的横坐标，去掉边框和飞机占用的两格总共W-4
+	int score = 0;//score:分数
+	int enemy[ENEMYNUM][2] = {-1 };//enemy:敌人的编号及坐标，0是H坐标，Y是W坐标
+	int gamespeed = 500;//gamespeed:刷新速度
+	void firstbuild();//firstbuild():向uarea中写入边框
+	void setplane(int x, int y,bool appear);//setplane：根据给定的坐标写入或删除玩家飞机x:横坐标y:纵坐标appear:删除还是新增
+	void setenemy(int x, int y,bool appear);//setenemy:根据给定的坐标写入或删除敌人x:横坐标y:纵坐标appear:删除还是新增
+	void moveplane(int &x, int &y, int forward);//moveplane :根据给定的坐标和方向写入新飞机，删除旧飞机。同时改变坐标。x:横坐标y:纵坐标forward:方向
+	void setbullet(int x, int y);//;seybullet:根据给定的飞机位置进行子弹的移动及新增x:横坐标y:纵坐标
+	void rungame(int &x,int &y,int enemy[][2],int &score);//rungame:游戏进行的主程序，调用其他函数完成一个循环x:横坐标y:纵坐标enemy:敌人数组score:分数
+	void newenemy(int enemy[][2]);//newenemy:在界面数组的最上方生成新的敌方飞机enemy:敌人数组
+	void enemymove(int enemy[][2]);//enemymove:在界面数组中清楚敌人的旧位置，同时在enemy数组中更新敌人的位置
+	int controlenemydead(int bullet[W],int enemy[][2]);//controlenemydead:根据给定的子弹数组和敌人位置数组判定敌人是否死亡，同时在界面中打印敌人的位置，更新分数
+	bool controlplanedead(int x, int y, int enemy[][2]);//controlplanedead:判定自己的飞机是否死亡x:横坐标y:纵坐标
+	void gameover();//gameover:结束游戏并显示分数
+	void printarea();//printarea:打印界面数组
 	area();
 };
 void area::firstbuild()
@@ -66,7 +66,7 @@ void area::setenemy(int x, int y,bool appear)
 	if (appear == true)
 	{
 		uarea[x][y] = ENEMYCHAR;
-		if (x != 1 && x != H - 2 && y != 1 && y != W - 2)
+		if (x != 1 && x != H - 2 && y != 1 && y != W - 2)//如果碰到边框就不显示飞机形状，只显示一个点
 		{
 			uarea[x - 1][y] =ENEMYCHAR;
 			uarea[x + 1][y] = ENEMYCHAR;
@@ -76,7 +76,7 @@ void area::setenemy(int x, int y,bool appear)
 	if (appear == false)
 	{
 		uarea[x][y] = ' ';
-		if (x != 1 && x != H - 2 && y != 1 && y != W - 2)
+		if (x != 1 && x != H - 2 && y != 1 && y != W - 2)//如果碰到边框就不显示飞机形状，只显示一个点
 		{
 			uarea[x - 1][y] = ' ';
 			uarea[x + 1][y] = ' ';
@@ -91,7 +91,7 @@ void area::setplane(int x, int y,bool appear)
 	if (appear == true) 
 	{
 		uarea[x][y] = PLANECHAR;
-		if (x != 1 && x != H - 2 && y != 1 && y != W - 2)
+		if (x != 1 && x != H - 2 && y != 1 && y != W - 2)//如果碰到边框就不显示飞机形状，只显示一个点
 		{
 			uarea[x - 1][y] = PLANECHAR;
 			uarea[x + 1][y] = PLANECHAR;
@@ -101,7 +101,7 @@ void area::setplane(int x, int y,bool appear)
 	if (appear == false)
 	{
 		uarea[x][y] = ' ';
-		if (x != 1 && x != H - 2 && y != 1 && y != W - 2)
+		if (x != 1 && x != H - 2 && y != 1 && y != W - 2)//如果碰到边框就不显示飞机形状，只显示一个点
 		{
 			uarea[x - 1][y] =' ';
 			uarea[x + 1][y] = ' ';
@@ -143,24 +143,24 @@ void area::setbullet(int x, int y)
 	for (int i = 0; i < W - 4; i++)
 	{
 		int t = bullet[i];
-		if (t != -1)
+		if (t != -1&&t<H-2&&t>0)
 		{
 			uarea[t][i + 1] = ' ';
 
 		}
 
 	}
-	for (int i = 0; i <y-2; i++)
+	for (int i = 0; i <y-3; i++)
 	{
-		bullet[i] = bullet[i + 1];
+		bullet[i] = bullet[i + 1];//子弹的移动
 	}
-	bullet[y - 3] = x;
+	bullet[y - 3] = x;//新增子弹
 	for (int i = 0; i < W-4; i++)
 	{
 		int t = bullet[i];
-		if (t != -1)
+		if (t != -1&&t<=H-2&&t>0)
 		{
-			uarea[t][i + 1] = '\^';
+			uarea[t][i + 1] = '^';
 			
 		}
 		
@@ -191,10 +191,11 @@ int area::controlenemydead(int bullet[W], int enemy[][2])
 	{
 		for (int j = 0; j < ENEMYNUM; j++)
 		{
+			/*下面if中的条件是：碰到敌方飞机的每个点都有效*/
 			if ((bullet[i] == enemy[j][0] && enemy[j][1] == i)||(bullet[i] == enemy[j][0] && enemy[j][1] == i-1)|| (bullet[i]+1 == enemy[j][0] && enemy[j][1] == i)||(bullet[i]-1 == enemy[j][0] && enemy[j][1] == i))
 			{
 				bullet[i] = -1;
-				std::cout << "\a";
+				cout << "\a";
 				enemy[j][1] = -1;
 				enemy[j][0] = -1;
 				defeat++;
@@ -207,7 +208,7 @@ int area::controlenemydead(int bullet[W], int enemy[][2])
 	{
 		if (enemy[j][1] != -1)
 		{
-			setenemy(enemy[j][0], enemy[j][1], true);
+			setenemy(enemy[j][0], enemy[j][1], true);//向界面数组中打印敌机位置
 		}
 		
 	}
@@ -217,7 +218,7 @@ bool area:: controlplanedead(int x, int y, int enemy[][2])
 {
 	for (int j = 0; j < ENEMYNUM; j++)
 	{
-		if (enemy[j][0] == x && enemy[j][1] == y)
+		if (enemy[j][0] == x && enemy[j][1] == y)//碰到敌方飞机则死亡，游戏结束
 		{
 			return true;
 		}
@@ -228,7 +229,7 @@ void area::enemymove(int enemy[][2])
 {
 	for (int j = 0; j < ENEMYNUM; j++)
 	{
-		if (enemy[j][1] != -1)
+		if (enemy[j][1] != -1)//删除旧的敌机位置
 		{
 			setenemy(enemy[j][0], enemy[j][1], false);
 		}
@@ -250,15 +251,20 @@ void area::gameover()
 }
 void area::rungame(int &x,int &y,int enemy[][2],int &score)
 {
-	firstbuild();
+	firstbuild();//边框
 	int timeover = 1;
 	int direction = 0;
 	newenemy(enemy);
 	int start = clock();
-	while ((clock() - start <= gamespeed) && !_kbhit());//kbhit 没有输入是0，有是非零
+	while ((clock() - start <= gamespeed) && !_kbhit());//如果没有达到时间伙伴键盘无输入就一直循环
+	if (static_cast<bool>(_kbhit()))
 	{
 		_getch();
 		direction = _getch();
+	}
+	else
+	{
+		direction = 0;
 	}
 	switch (direction)
 	{
@@ -299,13 +305,12 @@ void area::printarea()
 		{
 			cout << "当前分数：" << score;
 		}
-		std::cout << std::endl;
+		cout << std::endl;
 	}
 }
 area::area()
 {
-	int x1 = H / 2;
-	int y1 = W - 2;
+	
 	
 	//cout << "test";
 	//firstbuild();
@@ -319,12 +324,7 @@ area::area()
 		enemy[i][1] = -1;
 	}
 	gamespeed = 500;
-	while (true)
-	 {
-
-		rungame(x1, y1, enemy, score);
-
-	}
+	
 	//newenemy(enemy);
 	//setbullet(15, 18);
 	//controlenemydead(bullet, enemy);
@@ -357,21 +357,38 @@ area::area()
 int main()
 {
 	hello();
+	int x1 = H / 2;
+	int y1 = W - 2;
 	area t;
+	//int test = 0;
+	while (true)
+	{
+		/*ofstream out;
+		out.open("testbreak.log");
+		out << "runtime " << test<<endl;
+		for (int i = 0; i < W - 4; i++)
+		{
+			out << "bullet" << i << "\=";
+			out << t.bullet[i];
+		}
+		out << endl;
+		out.close();*/
+		t.rungame(x1, y1, t.enemy, t.score);
+		//test++;
+	}
 	
 	
 }
 void hello()
 {
 	cout << "欢迎体验命令行版本飞机大战！" << endl;
-	cout << "按空格键开始游戏" << endl;
 	cout << "说明：方向键控制飞机移动，自动开火，中途可按q键退出" << endl;
 	int start1 = clock();
 	while (clock() - start1 <= 1000);
 	for (int i = 3; i >= 0; i--)
 	{
-		int start = clock();
-		while (clock() - start <= 1000);
+		int start0 = clock();
+		while (clock() - start0 <= 1000);
 		system("cls");
 		if (i > 0)
 			cout << "\n\n\t\t倒计时：" << i << endl;
