@@ -273,7 +273,7 @@ void area::gameover()
 	cout << score<<endl;
 	cout << "欢\t迎\t下\t次\t体\t验！"<<endl;
 	cout << "任\t意\t键\t退\t出" << endl;
-	exit(0);
+	con = false;
 }
 void area::rungame(int &x,int &y,int enemy[][2],int &score)
 {
@@ -353,6 +353,7 @@ area::area()
 	gamespeed = 500;
 	score = 0;
 	round = 0;
+	con = true;
 	//newenemy(enemy);
 	//setbullet(15, 18);
 	//controlenemydead(bullet, enemy);
@@ -438,7 +439,7 @@ void area::testwrite(int x,int y)
 #define LENGTH 8
 #define TIME 3
 class Login {
-private:
+public:
 	struct user
 	{
 		string name;
@@ -568,9 +569,6 @@ void Login::setscore(int num,int score0)
 }
 int main()
 {
-	HANDLE consolehwnd;
-	consolehwnd =GetStdHandle(STD_OUTPUT_HANDLE);
-	SetConsoleTextAttribute(consolehwnd, 250);
 	cout << "命\t令\t行\t版\t本\t飞\t机\t大\t战\n" << endl;
 	cout << "请输入玩家数量" << endl;
 	int num;
@@ -599,7 +597,7 @@ int main()
 			}
 		}*/
 		//int test = 0;
-		while (true)
+		while (t.con==true)
 		{
 			/*ofstream out;
 			out.open("testbreak.log");
@@ -614,6 +612,11 @@ int main()
 			t.rungame(x1, y1, t.enemy, t.score);
 			//test++;
 		}
+		log_.setscore(num - 1, t.score);
+		cout << "成\t绩\t如\t下" << endl;
+		cout << "姓名\t成绩\n";
+		cout << (log_.userp)->name <<"\t"<< log_.userp->score;
+
 	}
 	else
 	{
