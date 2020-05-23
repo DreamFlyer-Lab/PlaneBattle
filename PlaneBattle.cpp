@@ -208,6 +208,7 @@ int area::controlenemydead(int bullet[W], int enemy[][2])
 			/*下面if中的条件是：碰到敌方飞机的每个点都有效*/
 			if ((bullet[i] == enemy[j][0] && enemy[j][1] == i)||(bullet[i] == enemy[j][0] && enemy[j][1] == i-1)|| (bullet[i]+1 == enemy[j][0] && enemy[j][1] == i)||(bullet[i]-1 == enemy[j][0] && enemy[j][1] == i))
 			{
+				uarea[bullet[i]][i + 1] = ' ';
 				bullet[i] = -1;
 				cout << "\a";
 				enemy[j][1] = -1;
